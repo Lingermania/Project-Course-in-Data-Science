@@ -1,1 +1,1 @@
-# Project-Course-in-Data-Science
+# Project-Course
