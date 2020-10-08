@@ -83,7 +83,10 @@ class FCM:
         stats = np.zeros(im.shape)
         for i in range(stats.shape[0]):
             for j in range(stats.shape[1]):
-                stats[i,j,:] = vis[self.get_class(i,j)]
+                if len(self.imshape) == 3:
+                    stats[i,j,:] = vis[self.get_class(i,j)]
+                elif len(self.imshape) == 2:
+                    stats[i,j] = vis[self.get_class(i,j)]
 
         return stats, False
         
@@ -185,9 +188,9 @@ class sFCM(FCM):
         for i in range(stats.shape[0]):
             for j in range(stats.shape[1]):
                 if len(self.imshape) == 3:
-                    stats[i,j,:] = vis[fcm.get_class(i,j)]
+                    stats[i,j,:] = vis[self.get_class(i,j)]
                 elif len(self.imshape) == 2:
-                    stats[i,j] = vis[fcm.get_class(i,j)]
+                    stats[i,j] = vis[self.get_class(i,j)]
 
         return stats, False
 
@@ -230,9 +233,9 @@ class csFCM(sFCM):
         for i in range(stats.shape[0]):
             for j in range(stats.shape[1]):
                 if len(self.imshape) == 3:
-                    stats[i,j,:] = vis[fcm.get_class(i,j)]
+                    stats[i,j,:] = vis[self.get_class(i,j)]
                 elif len(self.imshape) == 2:
-                    stats[i,j] = vis[fcm.get_class(i,j)]
+                    stats[i,j] = vis[self.get_class(i,j)]
 
         return stats, False
 
