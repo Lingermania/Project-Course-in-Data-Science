@@ -47,10 +47,10 @@ class brainweb_images:
 
         return cv2.applyColorMap(np.uint8(mmr_slice), cmap)
 
-    def show_mmr_slice(self, mmr_slice, cmap = cv2.COLORMAP_HOT):
+    def color_mmr_slice(self, mmr_slice, cmap = cv2.COLORMAP_HOT):
         assert len(mmr_slice.shape) == 2
         
-        cv2.imshow('t', self._color_mmr_slice(mmr_slice, cmap))
+        return self._color_mmr_slice(mmr_slice, cmap)
         
 
     def show_sample_as_montage(self, mmr_volume, montage_size = 1000, cmap = cv2.COLORMAP_HOT):
@@ -63,11 +63,8 @@ class brainweb_images:
         side  = montage_size//order
 
 
-        montages = build_montages(montage, (side, side), (order, order))
-        for montage in montages:
+        return build_montages(montage, (side, side), (order, order))
 
-            cv2.imshow('t', montage)
-            cv2.waitKey()
         
 
 if __name__ == "__main__":
