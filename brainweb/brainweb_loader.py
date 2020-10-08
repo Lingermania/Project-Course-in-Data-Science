@@ -53,7 +53,7 @@ class brainweb_images:
         return self._color_mmr_slice(mmr_slice, cmap)
         
 
-    def show_sample_as_montage(self, mmr_volume, montage_size = 1000, cmap = cv2.COLORMAP_HOT):
+    def sample_as_montage(self, mmr_volume, montage_size = 1000, cmap = cv2.COLORMAP_HOT):
         assert len(mmr_volume.shape) == 3
 
         nr_images, height, width = mmr_volume.shape
