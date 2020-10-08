@@ -236,22 +236,24 @@ class csFCM(sFCM):
 
         return stats, False
 
-import cv2
+if __name__ == "__main__":
+        
+    import cv2
 
-test = cv2.resize(cv2.imread('74.jpeg'), (100,100))
-#test = cv2.cvtColor(cv2.resize(test, (50, 50)), cv2.COLOR_BGR2GRAY)
+    test = cv2.resize(cv2.imread('74.jpeg'), (100,100))
+    #test = cv2.cvtColor(cv2.resize(test, (50, 50)), cv2.COLOR_BGR2GRAY)
 
-fcm = sFCM(2, 5, 1, 0.5, 3, test.shape)
-#fcm = FCM(2, 10, test.shape)
-#fcm = csFCM(3, 2, 1, 0.5, 3, test.shape)
+    fcm = sFCM(2, 5, 1, 0.5, 3, test.shape)
+    #fcm = FCM(2, 10, test.shape)
+    #fcm = csFCM(3, 2, 1, 0.5, 3, test.shape)
 
-for c, (stat, finish) in enumerate(fcm.run(test, 0)):
-    img = cv2.resize(stat, (334, 334)).astype(np.uint8)
-    cv2.imwrite('gifs/{}.jpeg'.format(c), img)
-    #cv2.imshow("test {}".format(c), img)
-    #cv2.waitKey()
-#print(test.shape)
-#fcm.sfcm(test, None)
+    for c, (stat, finish) in enumerate(fcm.run(test, 0)):
+        img = cv2.resize(stat, (334, 334)).astype(np.uint8)
+        cv2.imwrite('gifs/{}.jpeg'.format(c), img)
+        #cv2.imshow("test {}".format(c), img)
+        #cv2.waitKey()
+    #print(test.shape)
+    #fcm.sfcm(test, None)
 
 
 
