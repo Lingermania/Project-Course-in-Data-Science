@@ -25,3 +25,7 @@ def load_imgdir(dir_path,img_format):
 
     images = [cv2.imread(file) for file in glob.glob(dir_path+"*."+img_format)]
     return images
+
+
+if __name__=="__main__":
+    images = load_imgdir('Project-Course-in-Data-Science/sFCM/gifs/',"jpeg")
