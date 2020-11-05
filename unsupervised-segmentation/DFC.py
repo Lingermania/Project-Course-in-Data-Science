@@ -54,15 +54,12 @@ class MyNet(nn.Module):
         return x
 
 class DFC:
-    def __init__(self, nChannel = 100, maxIter = 1000, lr = 0.1, nConv = 2, visualize = 1, minLabels = 3, stepsize_sim = 1, stepsize_con = 1, stepsize_scr = 0.5, use_cuda = False):
+    def __init__(self, nChannel = 100, lr = 0.1, nConv = 2, minLabels = 3, stepsize_sim = 1, stepsize_con = 1, use_cuda = False):
         self.nChannel = nChannel
-        self.maxIter  = maxIter
         self.lr       = lr
         self.nConv    = nConv
-        self.visualize = visualize
         self.stepsize_sim = stepsize_sim
         self.stepsize_con = stepsize_con
-        self.stepsize_scr = stepsize_scr
         self.use_cuda     = use_cuda
         self.minLabels    = minLabels
 
@@ -102,7 +99,7 @@ class DFC:
     
         self.optimizer.zero_grad()
         output = self.model( self.data )[ 0 ]
-        #response_map = deepcopy(output)
+        response_map = output.clone().detach().numpy()
 
         output = output.permute( 1, 2, 0 ).contiguous().view( -1, self.nChannel )
 
@@ -115,13 +112,7 @@ class DFC:
         ignore, target = torch.max( output, 1 )
         im_target = target.data.cpu().numpy()
         nLabels = len(np.unique(im_target))
-        if self.visualize:
-            im_target_rgb = np.array([self.label_colours[ c % self.nChannel ] for c in im_target])
-            im_target_rgb = im_target_rgb.reshape( self.im.shape ).astype( np.uint8 )
-            cv2.imshow( "output", im_target_rgb )
-            cv2.waitKey(10)
-
-
+        
         loss = self.stepsize_sim * self.loss_fn(output, target) + self.stepsize_con * (lhpy + lhpz)
             
         loss.backward()
@@ -132,17 +123,28 @@ class DFC:
         if nLabels <= self.minLabels:
             print ("nLabels", nLabels, "reached minLabels", self.minLabels, ".")
 
-        
+        im_target_rgb = np.array([self.label_colours[ c % self.nChannel ] for c in im_target])
+        return im_target_rgb.reshape( self.im.shape ).astype( np.uint8 ), response_map
+
 
 
 if __name__ == "__main__":
-    dfc = DFC(minLabels=10, nChannel=100, nConv=2, lr=0.1, stepsize_con=5)
+    dfc = DFC(minLabels=10, nChannel=100, nConv=2, lr=0.01, stepsize_con=5)
 
     im = cv2.imread('PCiDS/sFCM/74.jpeg')
+
+    h, w = 95, 95
+    y, x = (im.shape[0] - h)//2, (im.shape[1] - w)//2
+
+    im = im[y:y + h, x: x + w]
+
     dfc.initialize_clustering(im)
 
     for i in range(0, 100):
-        dfc.step()
+        im, r_map = dfc.step()
+        cv2.imwrite('PCiDS/sFCM/gifs/{}.jpeg'.format(i), im)
+        #cv2.imshow('{}'.format(i), im)
+        #cv2.waitKey(10)
 '''
 # save output image
 if not args.visualize:
