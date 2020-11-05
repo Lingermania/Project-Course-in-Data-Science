@@ -34,7 +34,8 @@ class brainweb_images:
 
         #Sampling procedure
         for f in tqdm(random.sample(self.files, nr_samples), desc='mMR ground truths', unit='subject'):
-            vol = brainweb.get_mmr_fromfile(f, **parameters)
+            vol = brainweb.get_mmr_fromfile(f, **parameters) #volumes
+            gt  = brainweb.get_label_probabilities(f, labels=brainweb.Act.all_labels) #ground truths
             gt_map = {}
             for i, label in enumerate(brainweb.Act.all_labels):
                 gt_map[label] = gt[i,...]
