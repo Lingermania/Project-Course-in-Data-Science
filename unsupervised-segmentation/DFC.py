@@ -142,9 +142,9 @@ if __name__ == "__main__":
 
     for i in range(0, 100):
         im, r_map = dfc.step()
-        cv2.imwrite('PCiDS/sFCM/gifs/{}.jpeg'.format(i), im)
-        #cv2.imshow('{}'.format(i), im)
-        #cv2.waitKey(10)
+        #cv2.imwrite('PCiDS/sFCM/gifs/{}.jpeg'.format(i), im)
+        cv2.imshow('{}'.format(i), im)
+        cv2.waitKey(10)
 '''
 # save output image
 if not args.visualize:
