@@ -24,9 +24,9 @@ def partition_entropy(u):
     return -(u * np.log(u)).sum()/N
 
 class Cluster:
-    def __init__(self, labels):
+    def __init__(self, labels, consider = None):
         self.labels = labels
-
+        self.consider = consider
 
         self.__initialize_partition_sets()
 
@@ -35,7 +35,10 @@ class Cluster:
 
         for i, r in enumerate(self.labels):
             for j, v in enumerate(r):
-                self.partition[v].add((i,j))
+                if self.consider != None and v in self.consider:
+                    self.partition[v].add((i,j))
+                elif self.consider == None:
+                    self.partition[v].add((i,j))
 
     def approximate_mapping(self, other):
         '''
@@ -54,7 +57,7 @@ class Cluster:
                 mp[p1] = max(mp[p1], (iou(self.partition[p1], other.partition[p2]), p2), key = lambda x : x[0])
 
 
-        A = set([x for x in np.unique(other.labels)]) - set([x[1] for x in mp]) #other.labels - B
+        A = set([x for x in np.unique(other.labels)]) - set([mp[x][1] for x in mp]) #other.labels - B
 
         return mp, A
 
