@@ -90,6 +90,21 @@ def metric_stats(metrics):
             stats.append([np.average(m),np.var(m),m])
     return stats
 
+def combine_im_metrics(im_metric_list):
+    """
+    Concatenates the metrics from the different images 
+    and then computes the metrics on the whole image
+    set
+    """
+
+    imset_metrics = [[]]*len(im_metric_list[0])
+    for im in metric_list:
+        for i,metric in enumerate(im):
+            for m in metric[2]:
+                imset_metrics[i].append(m)
+    return metric_stats(imset_metric)
+
+
 
 if __name__=="__main__":
     images = load_imgdir('Project-Course-in-Data-Science/sFCM/Experiments_data/',"jpeg")
