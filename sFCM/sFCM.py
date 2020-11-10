@@ -88,9 +88,9 @@ class FCM:
                 elif len(self.imshape) == 2:
                     stats[i,j] = vis[self.get_class(i,j)]
 
-        return stats, False
+        return [self.u,stats], False
         
-    def run(self, im, eps):
+    def run(self, im, eps, n_iter=0, **kwargs):
         '''
         Runs the iterative process of clustering
 
@@ -99,8 +99,10 @@ class FCM:
 
         Yields statistics for each iteration
         '''
+        if n_iter==0:
+            n_iter=FCM.MAX_ITER
 
-        for c in range(FCM.MAX_ITER):
+        for c in range(n_iter):
             stats, finish = self.step(im, eps)
 
             yield stats, finish
@@ -239,22 +241,29 @@ class csFCM(sFCM):
 
         return stats, False
 
+
+
+
+
 if __name__ == "__main__":
         
     import cv2
 
-    test = cv2.resize(cv2.imread('/home/kristmundur/Documents/KTH/Project Course/PCiDS/sFCM/74.jpeg'), (100,100))
+    test = cv2.resize(cv2.imread('Project-Course-in-Data-Science/sFCM/74.jpeg'), (100,100))
+    comp_test = cv2.imread('Pytorch-unsupervised-segmentation-tip/BSD500/101027.jpg')
     #test = cv2.cvtColor(cv2.resize(test, (50, 50)), cv2.COLOR_BGR2GRAY)
 
+    #fcm = sFCM(2, 5, 1, 0.5, 3, comp_test.shape)
     #fcm = sFCM(2, 5, 1, 0.5, 3, test.shape)
     fcm = FCM(2, 10, test.shape)
     #fcm = csFCM(3, 2, 1, 0.5, 3, test.shape)
-
-    for c, (stat, finish) in enumerate(fcm.run(test, 0)):
-        img = cv2.resize(stat, (334, 334)).astype(np.uint8)
-        #cv2.imwrite('gifs/{}.jpeg'.format(c), img)
-        cv2.imshow("test {}".format(c), img)
-        cv2.waitKey()
+    stats = experiment_runs(fcm,metric_0,comp_test,0,15, n_trials=30)
+    for c, (stat, finish) in enumerate(fcm.run(comp_test, 0,n_iter=1)):
+        #img = cv2.resize(stat, comp_test.shape).astype(np.uint8)
+        img = stat.astype(np.uint8)
+        cv2.imwrite('Project-Course-in-Data-Science/sFCM/gifs/{}.jpeg'.format(c), img)
+        #cv2.imshow("test {}".format(c), img)
+        #cv2.waitKey()
     #print(test.shape)
     #fcm.sfcm(test, None)
 
