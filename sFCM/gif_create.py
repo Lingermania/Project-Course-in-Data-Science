@@ -1,7 +1,7 @@
 import imageio
 import os
 
-folder = "/home/kristmundur/Documents/KTH/Project Course/sFCM/gifs"
+folder = "PCiDS/sFCM/gifs"
 ims = []
 for (s, w, files) in os.walk(folder):
     for f in sorted(list(files), key = lambda x : int(x.split('.')[0])):
