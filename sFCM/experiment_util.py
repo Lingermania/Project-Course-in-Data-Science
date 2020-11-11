@@ -17,12 +17,12 @@ def experiment_runs(model, true_labels,*args, **kwargs):
             continue
         metric_list.append(generate_metrics(stat,true_labels))
         if "save_trials" in kwargs:
-            np.save("data_storage/image_"+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial_"+str(i),np.array(metric_list[-1]))
+            np.save("Project-Course-in-Data-Science/sFCM/data_storage/image"+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(metric_list[-1]))
 
 
     stats = metric_stats(metric_list)
     if "save_stats" in kwargs:
-        np.save("data_storage/image_"+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial_"+str(i),np.array(stats))
+        np.save("Project-Course-in-Data-Science/sFCM/data_storage/image"+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(stats))
 
     return stats
 
@@ -94,7 +94,9 @@ def combine_im_metrics(im_metric_list):
     """
     Concatenates the metrics from the different images 
     and then computes the metrics on the whole image
-    set
+    set. Based on the assumption that the third value
+    in the list added by metric_stats is the original
+    metric list
     """
 
     imset_metrics = [[]]*len(im_metric_list[0])
@@ -122,4 +124,5 @@ if __name__=="__main__":
     if use_cuda:
         model.cuda()
     model.train()
-    load_run(fcm,'Project-Course-in-Data-Science/sFCM/Experiments_data/',"jpeg",[None], 0, n_iter=1,paths=False, n_trials=1) 
+    metric_stats = load_run(fcm,'Project-Course-in-Data-Science/sFCM/Experiments_data/',"jpeg",[None], 0, n_iter=1,paths=False, n_trials=1, save_trials=True,save_stats=True) 
+    combine_im_metrics(metric_stats)
