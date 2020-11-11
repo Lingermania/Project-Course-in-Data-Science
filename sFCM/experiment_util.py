@@ -90,7 +90,7 @@ def metric_stats(metrics):
         if type(metric_array[0,m])==list or type(metric_array[0,m])==np.ndarray:
             stats.append([metric_array[:,m]])
         else:
-            stats.append([np.average(metric_array[:,m]),np.var(metric_array[:,m]),metric_array[:,m]])
+            stats.append([np.average(metric_array[:,m].astype(float)),np.var(metric_array[:,m].astype(float)),metric_array[:,m]])
     return stats
 
 def combine_im_metrics(im_metric_list):
@@ -109,11 +109,23 @@ def combine_im_metrics(im_metric_list):
                 imset_metrics.append(metrics)
     return metric_stats(imset_metrics)
 
+def load_experiments_data(dir_path, data_format):
+    """
+    Creates a list of all the numpy files of a certain
+    format in a directory
+    """
+    import glob
+
+    experiments_paths = [file for file in glob.glob(dir_path+"*."+data_format)]
+    data = []
+    for file in experiments_paths:
+        data.append(np.load(file,allow_pickle=True))
+    return data
+
 
 
 if __name__=="__main__":
-    d=[[[0,2,[[3,4,6]]]],[[2,3,[[5,4,6]]]]]
-    e=combine_im_metrics(d)
+    e=load_experiments_data("Project-Course-in-Data-Science/sFCM/data_storage/","npy")
     images = load_imgdir('Project-Course-in-Data-Science/sFCM/Experiments_data/',"jpeg")
     #fcm = sFCM(2, 5, 1, 0.5, 3, images[0].shape)
     fcm = FCM(2, 10, images[0].shape)
