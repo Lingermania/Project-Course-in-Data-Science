@@ -17,12 +17,12 @@ def experiment_runs(model, true_labels,*args, **kwargs):
             continue
         metric_list.append(generate_metrics(stat,true_labels))
         if "save_trials" in kwargs:
-            np.save("Project-Course-in-Data-Science/sFCM/data_storage/image"+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(metric_list[-1]))
+            np.save("Project-Course-in-Data-Science/sFCM/data_storage/image"+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(metric_list[-1],dtype=object))
 
 
     stats = metric_stats(metric_list)
     if "save_stats" in kwargs:
-        np.save("Project-Course-in-Data-Science/sFCM/data_storage/image"+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(stats))
+        np.save("Project-Course-in-Data-Science/sFCM/data_storage/image"+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(stats,dtype=object))
 
     return stats
 
@@ -82,12 +82,15 @@ def metric_stats(metrics):
     if not array or lists, also add the original metric list
     for histogram purposes
     """
+    metric_array = np.array(metrics)
+
     stats = []
-    for m in metrics:
-        if type(m)==list or type(m)==np.ndarray:
-            stats.append([None,None,m])
+    
+    for m in range(metric_array.shape[1]):
+        if type(metric_array[0,m])==list or type(metric_array[0,m])==np.ndarray:
+            stats.append([metric_array[:,m]])
         else:
-            stats.append([np.average(m),np.var(m),m])
+            stats.append([np.average(metric_array[:,m]),np.var(metric_array[:,m]),metric_array[:,m]])
     return stats
 
 def combine_im_metrics(im_metric_list):
@@ -99,16 +102,18 @@ def combine_im_metrics(im_metric_list):
     metric list
     """
 
-    imset_metrics = [[]]*len(im_metric_list[0])
-    for im in metric_list:
-        for i,metric in enumerate(im):
-            for m in metric[2]:
-                imset_metrics[i].append(m)
-    return metric_stats(imset_metric)
+    imset_metrics = []
+    for im in im_metric_list:
+        for metric_list in im:
+            for metrics in metric_list[2]:
+                imset_metrics.append(metrics)
+    return metric_stats(imset_metrics)
 
 
 
 if __name__=="__main__":
+    d=[[[0,2,[[3,4,6]]]],[[2,3,[[5,4,6]]]]]
+    e=combine_im_metrics(d)
     images = load_imgdir('Project-Course-in-Data-Science/sFCM/Experiments_data/',"jpeg")
     #fcm = sFCM(2, 5, 1, 0.5, 3, images[0].shape)
     fcm = FCM(2, 10, images[0].shape)
@@ -124,5 +129,5 @@ if __name__=="__main__":
     if use_cuda:
         model.cuda()
     model.train()
-    metric_stats = load_run(fcm,'Project-Course-in-Data-Science/sFCM/Experiments_data/',"jpeg",[None], 0, n_iter=1,paths=False, n_trials=1, save_trials=True,save_stats=True) 
+    metric_stats = load_run(fcm,'Project-Course-in-Data-Science/sFCM/Experiments_data/',"jpeg",[None], 0, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True) 
     combine_im_metrics(metric_stats)
