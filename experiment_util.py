@@ -9,22 +9,30 @@ def experiment_runs(model, true_labels,*args, **kwargs):
     deviation of the metric method.
     """
     metric_list = []
+    verbose=False
+    if "verbose" in kwargs:
+        if kwargs["verbose"]:
+            verbose=True
     for i in range(kwargs["n_trials"]):
-        print("Trial {} \n----------------------------------".format(i+1))
+        if verbose:
+            print("Trial {} \n----------------------------------".format(i+1))
         for c, (stat, finish) in enumerate(model.run(*args,**kwargs)):
-            print("Iteration {}".format(c))
+            if verbose:
+                print("Iteration {}".format(c))
             #One could potentially save the images
             #or do some computation on the response to examine the convergence
             #during the runs
             continue
         metric_list.append(generate_metrics(stat,true_labels))
         if "save_trials" in kwargs:
-            np.save(data_storage_path+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(metric_list[-1],dtype=object))
+            if kwargs["save_trials"]:
+                np.save(data_storage_path+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(metric_list[-1],dtype=object))
 
 
     stats = metric_stats(metric_list)
     if "save_stats" in kwargs:
-        np.save(data_storage_path+str(kwargs["image_nr"])+"_"+type(model).__name__+"total"+str(i),np.array(stats,dtype=object))
+        if kwargs["save_stats"]:
+            np.save(data_storage_path+str(kwargs["image_nr"])+"_"+type(model).__name__+"total"+str(i),np.array(stats,dtype=object))
 
     return stats
 
@@ -47,16 +55,24 @@ def load_run(model,dir_path,img_format, true_labels,*args, paths=False, **kwargs
     """args are used as the input parameters to the model run method 
         kwargs are used deterministically with "n_trials" required
     """
+    
     if paths:
         images = load_impathdir(dir_path,img_format)
     else:
         images = load_imgdir(dir_path,img_format)
     metrics = []
-    experiment_para_str = "Experiment parameters\n"+"".join([key+":"+str(kwargs[key])+"\n" for key in kwargs])+"----------------------------------"
-    print("Begining experiment with {} model \n----------------------------------".format(type(model).__name__))
-    print(experiment_para_str)
+
+    verbose=False
+    if "verbose" in kwargs:
+        if kwargs["verbose"]:
+            verbose=True
+    if verbose:
+        experiment_para_str = "Experiment parameters\n"+"".join([key+":"+str(kwargs[key])+"\n" if key!="verbose" else "" for key in kwargs ])+"----------------------------------"
+        print("Begining experiment with {} model \n----------------------------------".format(type(model).__name__))
+        print(experiment_para_str)
     for i,im in enumerate(images):
-        print("Starting experiment trials with image {} \n----------------------------------".format(i))
+        if verbose:
+            print("Starting experiment trials with image {} \n----------------------------------".format(i))
         if "save_trials" in kwargs or "save_stats" in kwargs:
             metrics.append(experiment_runs(model,true_labels, im,*args, image_nr=i,**kwargs))
         else:
@@ -155,5 +171,5 @@ if __name__=="__main__":
     if use_cuda:
         model.cuda()
     model.train()
-    metric_stats = load_run(fcm,experiments_storage_path,"jpeg",[None], 0, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True) 
+    metric_stats = load_run(fcm,experiments_storage_path,"jpeg",[None], 0, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
     combine_im_metrics(metric_stats)
