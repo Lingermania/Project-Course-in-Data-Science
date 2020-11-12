@@ -127,8 +127,8 @@ def load_experiments_data(dir_path, data_format):
         data.append(np.load(file,allow_pickle=True))
     return data
 
-data_storage_path = "Project-Course-in-Data-Science/sFCM/data_storage/"
-experiments_storage_path = 'Project-Course-in-Data-Science/sFCM/Experiments_data/'
+data_storage_path = "Project-Course-in-Data-Science/data_storage/"
+experiments_storage_path = 'Project-Course-in-Data-Science/Experiments_data/'
 
 
 if __name__=="__main__":
