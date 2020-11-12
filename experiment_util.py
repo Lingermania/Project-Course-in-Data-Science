@@ -10,7 +10,9 @@ def experiment_runs(model, true_labels,*args, **kwargs):
     """
     metric_list = []
     for i in range(kwargs["n_trials"]):
+        print("Trial {} \n----------------------------------".format(i+1))
         for c, (stat, finish) in enumerate(model.run(*args,**kwargs)):
+            print("Iteration {}".format(c))
             #One could potentially save the images
             #or do some computation on the response to examine the convergence
             #during the runs
@@ -50,7 +52,11 @@ def load_run(model,dir_path,img_format, true_labels,*args, paths=False, **kwargs
     else:
         images = load_imgdir(dir_path,img_format)
     metrics = []
+    experiment_para_str = "Experiment parameters\n"+"".join([key+":"+str(kwargs[key])+"\n" for key in kwargs])+"----------------------------------"
+    print("Begining experiment with {} model \n----------------------------------".format(type(model).__name__))
+    print(experiment_para_str)
     for i,im in enumerate(images):
+        print("Starting experiment trials with image {} \n----------------------------------".format(i))
         if "save_trials" in kwargs or "save_stats" in kwargs:
             metrics.append(experiment_runs(model,true_labels, im,*args, image_nr=i,**kwargs))
         else:
