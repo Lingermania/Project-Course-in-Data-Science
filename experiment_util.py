@@ -1,8 +1,8 @@
 from sFCM.sFCM import *
-from sFCM.demo import *
+#from sFCM.demo import *
 from utils import partition_coefficient,partition_entropy
-import torch
-use_cuda = torch.cuda.is_available()
+#import torch
+#use_cuda = torch.cuda.is_available()
 def experiment_runs(model, true_labels,*args, **kwargs):
     """
     Runs the models run method on the data n times, calculates the average and standard
@@ -26,13 +26,13 @@ def experiment_runs(model, true_labels,*args, **kwargs):
         metric_list.append(generate_metrics(stat,true_labels))
         if "save_trials" in kwargs:
             if kwargs["save_trials"]:
-                np.save(data_storage_path+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(metric_list[-1],dtype=object))
+                np.save(data_storage_path_trials+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(metric_list[-1],dtype=object))
 
 
     stats = metric_stats(metric_list)
     if "save_stats" in kwargs:
         if kwargs["save_stats"]:
-            np.save(data_storage_path+str(kwargs["image_nr"])+"_"+type(model).__name__+"total"+str(i),np.array(stats,dtype=object))
+            np.save(data_storage_path_images+str(kwargs["image_nr"])+"_"+type(model).__name__+"_total"+str(i),np.array(stats,dtype=object))
 
     return stats
 
@@ -149,13 +149,14 @@ def load_experiments_data(dir_path, data_format):
         data.append(np.load(file,allow_pickle=True))
     return data
 
-data_storage_path = "Project-Course-in-Data-Science/data_storage/"
+data_storage_path_trials = "Project-Course-in-Data-Science/data_storage/trials"
+data_storage_path_images = "Project-Course-in-Data-Science/data_storage/images"
 experiments_storage_path = 'Project-Course-in-Data-Science/Experiments_data/'
 
 
 if __name__=="__main__":
-    e=load_experiments_data(data_storage_path,"npy")
-    d=combine_im_metrics([e[1], np.copy(e[1])])
+    #e=load_experiments_data(data_storage_path,"npy")
+    #d=combine_im_metrics([e[1], np.copy(e[1])])
     images = load_imgdir(experiments_storage_path,"jpeg")
     #fcm = sFCM(2, 5, 1, 0.5, 3, images[0].shape)
     fcm = FCM(2, 10, images[0].shape)
@@ -163,6 +164,7 @@ if __name__=="__main__":
 
     #IMPORTANT: When using the NN method we need to use paths to the run method
     # train
+    '''
     data = torch.from_numpy( np.array([images[0].transpose( (2, 0, 1) ).astype('float32')/255.]) )
     if use_cuda:
         data = data.cuda()
@@ -171,5 +173,6 @@ if __name__=="__main__":
     if use_cuda:
         model.cuda()
     model.train()
+    '''
     metric_stats = load_run(fcm,experiments_storage_path,"jpeg",[None], 0, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
     combine_im_metrics(metric_stats)
