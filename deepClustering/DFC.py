@@ -54,7 +54,7 @@ class MyNet(nn.Module):
         return x
 
 class DFC:
-    def __init__(self, nChannel = 100, lr = 0.1, nConv = 2, minLabels = 3, stepsize_sim = 1, stepsize_con = 1, use_cuda = False):
+    def __init__(self, nChannel = 100, lr = 0.1, nConv = 2, minLabels = 3, stepsize_sim = 1, stepsize_con = 1, use_cuda = False, max_iters = 50):
         self.nChannel = nChannel
         self.lr       = lr
         self.nConv    = nConv
@@ -62,11 +62,16 @@ class DFC:
         self.stepsize_con = stepsize_con
         self.use_cuda     = use_cuda
         self.minLabels    = minLabels
+        self.maxIters     = max_iters
 
     def initialize_clustering(self, im):
-        #data = torch.from_numpy( np.array([im.transpose( (2, 0, 1) ).astype('float32')/255.]) )
-        data = np.expand_dims(np.expand_dims(im, 0), 0)
-        data = torch.from_numpy(data.astype('float32')/255.)
+        self.dim3 = False
+        if len(im.shape) == 3:
+            data = torch.from_numpy( np.array([im.transpose( (2, 0, 1) ).astype('float32')/255.]) )
+            self.dim3 = True
+        else:
+            data = np.expand_dims(np.expand_dims(im, 0), 0)
+            data = torch.from_numpy(data.astype('float32')/255.)
         if use_cuda:
             data = data.cuda()
         self.data = Variable(data)
@@ -126,9 +131,15 @@ class DFC:
             print ("nLabels", nLabels, "reached minLabels", self.minLabels, ".")
 
         im_target_rgb = np.array([self.label_colours[ c % self.nChannel ] for c in im_target])
-        return im_target_rgb.reshape( ( *self.im.shape, 3) ).astype( np.uint8 ), im_target.reshape(self.im.shape), response_map, nLabels
+        if not self.dim3:
+            return im_target_rgb.reshape( ( *self.im.shape, 3) ).astype( np.uint8 ), im_target.reshape(self.im.shape), response_map, nLabels
+        else:
+            return im_target_rgb.reshape( *self.im.shape ).astype( np.uint8 ), im_target.reshape((self.im.shape[0], self.im.shape[1])), response_map, nLabels
 
 
+    def run(self):
+        for i in range(self.maxIters):
+            yield self.step()
 
 if __name__ == "__main__":
     dfc = DFC(minLabels=10, nChannel=100, nConv=2, lr=0.01, stepsize_con=5)
@@ -143,7 +154,7 @@ if __name__ == "__main__":
     dfc.initialize_clustering(im)
 
     for i in range(0, 100):
-        im, r_map = dfc.step()
+        im, labels, r_map, n_labels = dfc.step()
         #cv2.imwrite('PCiDS/sFCM/gifs/{}.jpeg'.format(i), im)
         cv2.imshow('{}'.format(i), im)
         cv2.waitKey(10)
