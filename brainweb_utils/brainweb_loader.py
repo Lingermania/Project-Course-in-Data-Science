@@ -84,7 +84,30 @@ if __name__ == "__main__":
                   't1Sigma' : 1, 
                   't2Sigma' : 1,
                   'PetClass' : brainweb.FDG}
+    nr_images_T1 = 2
+    nr_images_T2 = 2
+    lower_bound = 60
+    upper_bound = 80
 
-    pet, uMap, T1, T2, ground_truth = s.sample_mMR_dataset(parameters, 1, 1337)
 
-    #s.show_sample_as_montage(T1[0])
+    pet, uMap, T1, T2, ground_truth = s.sample_mMR_dataset(parameters, nr_images_T1+nr_images_T2, 1337)
+    #pet, uMap, T1, T2, ground_truth = s.sample_mMR_dataset(parameters, 1, 1337)
+    data_set = T1
+    t_set = "T1"
+    for i in range(nr_images_T1+nr_images_T2):
+        if i>nr_images_T1-1:
+            data_set = T2
+            t_set="T2"
+
+        for j in range(pet[0].shape[0]):
+            cv2.imwrite("Project-Course-in-Data-Science/Experiments_data/Images/Volume/{}sample{}_slice{}.jpeg".format(t_set,i,j),data_set[i][j])
+        np.save("Project-Course-in-Data-Science/Experiments_data/ground_truths/Volume/{}sample{}_truth_probs.npy".format(t_set,i),ground_truth[i])
+
+        
+        brain_slice = np.random.randint(lower_bound,upper_bound)
+        cv2.imwrite("Project-Course-in-Data-Science/Experiments_data/Images/{}sample{}_slice{}.jpeg".format(t_set,i,brain_slice),data_set[i][brain_slice])
+        brain_slice_dict = {key:ground_truth[i][key][brain_slice] for key in ground_truth[i]}
+        np.save("Project-Course-in-Data-Science/Experiments_data/ground_truths/{}sample{}_truth_probs.npy".format(t_set,i),brain_slice_dict)
+
+
+    s.show_sample_as_montage(T1[0])
