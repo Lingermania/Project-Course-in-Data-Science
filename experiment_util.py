@@ -1,6 +1,7 @@
 from sFCM.sFCM import *
 #from sFCM.demo import *
 from utils import partition_coefficient,partition_entropy
+import cv2
 #import torch
 #use_cuda = torch.cuda.is_available()
 def experiment_runs(model, true_labels,*args, **kwargs):
@@ -50,16 +51,30 @@ def load_impathdir(dir_path,img_format):
     images_paths = [file for file in glob.glob(dir_path+"*."+img_format)]
     return images_paths
 
+def simple_cropping(im, cropp_args={"top":0,"bot":0,"left":0,"right":0}):
+    """
+    Cropps the image into a smaller rectangular shape
 
-def load_run(model,dir_path,img_format, true_labels,*args, paths=False, **kwargs):
+    cropps_args: dictionary of how many rows should be removed from the beginning "top",
+    the end "bot" and how many columns should be removed from the same ("left","right")
+    """
+    cropped_im = im[cropp_args["top"]:-cropp_args["bot"],cropp_args["left"]:-cropp_args["right"]]
+    return cropped_im
+
+
+def load_run(model, true_labels,*args, paths=False,img_format=None, dir_path=None, cropping=False,cropping_method=simple_cropping, preloaded_images=None, **kwargs):
     """args are used as the input parameters to the model run method 
         kwargs are used deterministically with "n_trials" required
     """
     
     if paths:
         images = load_impathdir(dir_path,img_format)
+    elif preloaded_images:
+        images=preloaded_images
     else:
         images = load_imgdir(dir_path,img_format)
+    if cropping:
+        images = [cropping_method(im) for im in images]
     metrics = []
 
     verbose=False
@@ -74,9 +89,9 @@ def load_run(model,dir_path,img_format, true_labels,*args, paths=False, **kwargs
         if verbose:
             print("Starting experiment trials with image {} \n----------------------------------".format(i))
         if "save_trials" in kwargs or "save_stats" in kwargs:
-            metrics.append(experiment_runs(model,true_labels, im,*args, image_nr=i,**kwargs))
+            metrics.append(experiment_runs(model,true_labels[i], im,*args, image_nr=i,**kwargs))
         else:
-            metrics.append(experiment_runs(model,true_labels, im,*args,**kwargs))
+            metrics.append(experiment_runs(model,true_labels[i], im,*args,**kwargs))
     return metrics
 
 def generate_metrics(stat,true_labels):
@@ -136,7 +151,7 @@ def combine_im_metrics(im_metric_list):
             stats.append([np.average(metric_list),np.var(metric_list),metric_list])
     return stats
 
-def load_experiments_data(dir_path, data_format):
+def load_experiments_data(dir_path, data_format,item=False):
     """
     Creates a list of all the numpy files of a certain
     format in a directory
@@ -146,24 +161,32 @@ def load_experiments_data(dir_path, data_format):
     experiments_paths = [file for file in glob.glob(dir_path+"*."+data_format)]
     data = []
     for file in experiments_paths:
-        data.append(np.load(file,allow_pickle=True))
+        if item:
+            data.append(np.load(file,allow_pickle=True).item())
+        else:
+            data.append(np.load(file,allow_pickle=True))
     return data
+
+
 
 data_storage_path_trials = "Project-Course-in-Data-Science/data_storage/trials"
 data_storage_path_images = "Project-Course-in-Data-Science/data_storage/images"
-experiments_storage_path = 'Project-Course-in-Data-Science/Experiments_data/'
+experiments_storage_path_images = 'Project-Course-in-Data-Science/Experiments_data/Images/'
+experiments_storage_path_label_prob = 'Project-Course-in-Data-Science/Experiments_data/ground_truths/'
+default_im_format = "jpeg"
 
 
 if __name__=="__main__":
-    #e=load_experiments_data(data_storage_path,"npy")
-    #d=combine_im_metrics([e[1], np.copy(e[1])])
-    images = load_imgdir(experiments_storage_path,"jpeg")
+
+    images = load_imgdir(experiments_storage_path_images,"jpeg")
+    cropped_image = simple_cropping(images[0],  cropp_args={"top":50,"bot":50,"left":50,"right":50})
     #fcm = sFCM(2, 5, 1, 0.5, 3, images[0].shape)
     fcm = FCM(2, 10, images[0].shape)
-    #load_run(fcm,metric_0,'Project-Course-in-Data-Science/sFCM/gifs/',"jpeg",0,15, n_trials=30)
+    labels_dict = load_experiments_data(experiments_storage_path_label_prob, "npy",item=True)
+    labels_probs = [[sample[key] for key in sample] for sample in labels_dict]
+    sample_labels = [[np.random.binomial(1, x) for x in label_p] for label_p in labels_probs]
 
-    #IMPORTANT: When using the NN method we need to use paths to the run method
-    # train
+
     '''
     data = torch.from_numpy( np.array([images[0].transpose( (2, 0, 1) ).astype('float32')/255.]) )
     if use_cuda:
@@ -174,5 +197,7 @@ if __name__=="__main__":
         model.cuda()
     model.train()
     '''
-    metric_stats = load_run(fcm,experiments_storage_path,"jpeg",[None], 0, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
+    #metric_stats = load_run(fcm,[None], 0,img_format="jpeg",dir_path=experiments_storage_path, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
+    metric_stats = load_run(fcm,sample_labels, 0,preloaded_images=images, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
+
     combine_im_metrics(metric_stats)
