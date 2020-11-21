@@ -139,7 +139,8 @@ class DFC:
 
     def run(self):
         for i in range(self.maxIters):
-            yield self.step()
+            im, labels, membership, nrLabels = self.step()
+            yield labels, membership
 
 if __name__ == "__main__":
     dfc = DFC(minLabels=10, nChannel=100, nConv=2, lr=0.01, stepsize_con=5)
