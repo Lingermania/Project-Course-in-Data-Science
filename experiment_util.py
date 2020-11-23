@@ -128,10 +128,11 @@ def metric_stats(metrics):
     stats = []
     
     for m in range(metric_array.shape[1]):
-        if type(metric_array[0,m])==list or type(metric_array[0,m])==np.ndarray:
-            stats.append([metric_array[:,m]])
-        else:
+
+        if type(metric_array[0,m])==float or type(metric_array[0,m])==np.float64:
             stats.append([np.average(metric_array[:,m].astype(float)),np.var(metric_array[:,m].astype(float)),metric_array[:,m]])
+        else:
+            stats.append([metric_array[:,m]])
     return stats
 
 def combine_im_metrics(im_metric_list):
@@ -178,8 +179,8 @@ def load_experiments_data(dir_path, data_format,item=False):
 
 directory = path.dirname(path.abspath(path.abspath(__file__)))
 
-data_storage_path_trials = path.join(directory, 'data_storage', 'trials')#"Project-Course-in-Data-Science/data_storage/trials"
-data_storage_path_images = path.join(directory, 'data_storage', 'images')#"Project-Course-in-Data-Science/data_storage/images"
+data_storage_path_trials = path.join(directory, 'data_storage', 'trials')+ '/'#"Project-Course-in-Data-Science/data_storage/trials"
+data_storage_path_images = path.join(directory, 'data_storage', 'images')+ '/'#"Project-Course-in-Data-Science/data_storage/images"
 experiments_storage_path_images = path.join(directory, 'Experiments_data', 'Images') + '/'#'Project-Course-in-Data-Science/Experiments_data/Images/'
 experiments_storage_path_label_prob = path.join(directory, 'Experiments_data', 'ground_truths') + '/'#'Project-Course-in-Data-Science/Experiments_data/ground_truths/'
 default_im_format = "jpeg"
@@ -191,6 +192,8 @@ if __name__=="__main__":
     cropped_image = simple_cropping(images[0],  cropp_args={"top":50,"bot":50,"left":50,"right":50})
     #fcm = sFCM(2, 5, 1, 0.5, 3, images[0].shape)
     fcm = FCM(2, 10, cropped_image.shape)
+    exp = load_experiments_data(data_storage_path_trials, "npy")
+    d = metric_stats(exp)
     labels_dict = load_experiments_data(experiments_storage_path_label_prob, "npy",item=True)
     labels_names = [[key for key in sample] for sample in labels_dict]
     labels_probs = [[sample[key] for key in sample] for sample in labels_dict]
