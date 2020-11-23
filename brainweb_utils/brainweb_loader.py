@@ -100,12 +100,12 @@ if __name__ == "__main__":
             t_set="T2"
 
         for j in range(pet[0].shape[0]):
-            cv2.imwrite("Project-Course-in-Data-Science/Experiments_data/Images/Volume/{}sample{}_slice{}.jpeg".format(t_set,i,j),data_set[i][j])
+            cv2.imwrite("Project-Course-in-Data-Science/Experiments_data/Images/Volume/{}sample{}_slice{}.png".format(t_set,i,j),data_set[i][j])
         np.save("Project-Course-in-Data-Science/Experiments_data/ground_truths/Volume/{}sample{}_truth_probs.npy".format(t_set,i),ground_truth[i])
 
         
         brain_slice = np.random.randint(lower_bound,upper_bound)
-        cv2.imwrite("Project-Course-in-Data-Science/Experiments_data/Images/{}sample{}_slice{}.jpeg".format(t_set,i,brain_slice),data_set[i][brain_slice])
+        cv2.imwrite("Project-Course-in-Data-Science/Experiments_data/Images/{}sample{}_slice{}.png".format(t_set,i,brain_slice),data_set[i][brain_slice])
         brain_slice_dict = {key:ground_truth[i][key][brain_slice] for key in ground_truth[i]}
         np.save("Project-Course-in-Data-Science/Experiments_data/ground_truths/{}sample{}_truth_probs.npy".format(t_set,i),brain_slice_dict)
 

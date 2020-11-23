@@ -1,6 +1,6 @@
 from sFCM.sFCM import *
 #from sFCM.demo import *
-from utils import partition_coefficient,partition_entropy
+from utils import *
 import cv2
 #import torch
 #use_cuda = torch.cuda.is_available()
@@ -37,11 +37,14 @@ def experiment_runs(model, true_labels,*args, **kwargs):
 
     return stats
 
-def load_imgdir(dir_path,img_format):
+def load_imgdir(dir_path,img_format, grayscale=True):
     import glob
     import cv2
-
-    images = [cv2.imread(file) for file in glob.glob(dir_path+"*."+img_format)]
+    if grayscale:
+        images = [cv2.imread(file, 0) for file in glob.glob(dir_path+"*."+img_format)]
+    else:
+        images = [cv2.imread(file) for file in glob.glob(dir_path+"*."+img_format)]
+    
     return images
 
 def load_impathdir(dir_path,img_format):
@@ -51,7 +54,7 @@ def load_impathdir(dir_path,img_format):
     images_paths = [file for file in glob.glob(dir_path+"*."+img_format)]
     return images_paths
 
-def simple_cropping(im, cropp_args={"top":0,"bot":0,"left":0,"right":0}):
+def simple_cropping(im, cropp_args={"top":0,"bot":0,"left":0,"right":0}, **kwargs):
     """
     Cropps the image into a smaller rectangular shape
 
@@ -74,7 +77,7 @@ def load_run(model, true_labels,*args, paths=False,img_format=None, dir_path=Non
     else:
         images = load_imgdir(dir_path,img_format)
     if cropping:
-        images = [cropping_method(im) for im in images]
+        images = [cropping_method(im,**kwargs) for im in images]
     metrics = []
 
     verbose=False
@@ -178,10 +181,10 @@ default_im_format = "jpeg"
 
 if __name__=="__main__":
 
-    images = load_imgdir(experiments_storage_path_images,"jpeg")
+    images = load_imgdir(experiments_storage_path_images,"png")
     cropped_image = simple_cropping(images[0],  cropp_args={"top":50,"bot":50,"left":50,"right":50})
     #fcm = sFCM(2, 5, 1, 0.5, 3, images[0].shape)
-    fcm = FCM(2, 10, images[0].shape)
+    fcm = FCM(2, 10, cropped_image.shape)
     labels_dict = load_experiments_data(experiments_storage_path_label_prob, "npy",item=True)
     labels_probs = [[sample[key] for key in sample] for sample in labels_dict]
     sample_labels = [[np.random.binomial(1, x) for x in label_p] for label_p in labels_probs]
@@ -198,6 +201,6 @@ if __name__=="__main__":
     model.train()
     '''
     #metric_stats = load_run(fcm,[None], 0,img_format="jpeg",dir_path=experiments_storage_path, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
-    metric_stats = load_run(fcm,sample_labels, 0,preloaded_images=images, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
+    metric_stats = load_run(fcm,sample_labels, 0,preloaded_images=images,cropping=True, cropp_args={"top":50,"bot":50,"left":50,"right":50}, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
 
     combine_im_metrics(metric_stats)
