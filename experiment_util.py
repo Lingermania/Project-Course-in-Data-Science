@@ -205,6 +205,6 @@ if __name__=="__main__":
     model.train()
     '''
     #metric_stats = load_run(fcm,[None], 0,img_format="jpeg",dir_path=experiments_storage_path, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
-    metric_stats = load_run(fcm,sample_labels, 0,preloaded_images=images,cropping=True, cropp_args={"top":50,"bot":50,"left":50,"right":50}, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
+    metric_stats = load_run(fcm,sample_labels, labels_names, 0,preloaded_images=images,cropping=True, cropp_args={"top":50,"bot":50,"left":50,"right":50}, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
 
     combine_im_metrics(metric_stats)
