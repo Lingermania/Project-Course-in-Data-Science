@@ -117,7 +117,6 @@ class Cluster:
                 mp, A = a.approximate_mapping(cluster_to, metric = lambda x, y : len(x & y)/len(x) if len(x) > 0 else 0)
             
             if 1 in mp:
-                print(mp[1])
                 arr.append([mp[1][x][0] for x in range(len(mp[1]))])
 
         s = ['{0} ({1})'.format(x, invioumap[x]) for x in np.unique(cluster_to)]
