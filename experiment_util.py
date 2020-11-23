@@ -81,6 +81,7 @@ def load_run(model, true_labels,label_names,*args, paths=False,img_format=None, 
         images = load_imgdir(dir_path,img_format)
     if cropping:
         images = [cropping_method(im,**kwargs) for im in images]
+        true_labels = [[cropping_method(label,**kwargs) for label in label_set] for label_set in true_labels]
     metrics = []
 
     verbose=False
