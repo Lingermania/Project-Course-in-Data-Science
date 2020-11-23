@@ -78,7 +78,9 @@ class FCM:
         #TODO implement convergence criteria based on eps
 
         vis = self._vi(self.u, im)
+        vis_ar = np.array(vis)
         self.u = self.get_u(im, vis)
+        
 
         stats = np.zeros(im.shape)
         for i in range(stats.shape[0]):
@@ -87,7 +89,10 @@ class FCM:
                     stats[i,j,:] = vis[self.get_class(i,j)]
                 elif len(self.imshape) == 2:
                     stats[i,j] = vis[self.get_class(i,j)]
-
+        new_vis_ar = np.array(self._vi(self.u, im))
+        centre_diff = np.abs(new_vis_ar.reshape(-1,1)-vis_ar)
+        if np.max(centre_diff)<eps:
+            return [self.u,stats], True
         return [self.u,stats], False
         
     def run(self, im, eps, n_iter=0, **kwargs):
@@ -101,7 +106,6 @@ class FCM:
         '''
         if n_iter==0:
             n_iter=FCM.MAX_ITER
-
         for c in range(n_iter):
             stats, finish = self.step(im, eps)
 
@@ -182,6 +186,7 @@ class sFCM(FCM):
         #TODO implement convergence criteria based on eps
 
         vis = self._vi(self.u, im)
+        vis_ar = np.array(vis)
         self.u = self.get_u(im, vis)
         self.h = self._h(self.u)
         self.u = self._update_u(vis)
@@ -193,8 +198,13 @@ class sFCM(FCM):
                     stats[i,j,:] = vis[self.get_class(i,j)]
                 elif len(self.imshape) == 2:
                     stats[i,j] = vis[self.get_class(i,j)]
+        
+        new_vis_ar = np.array(self._vi(self.u, im))
+        centre_diff = np.abs(new_vis_ar.reshape(-1,1)-vis_ar)
+        if np.max(centre_diff)<eps:
+            return [self.u,stats], True
 
-        return stats, False
+        return [self.u,stats], False
 
 class csFCM(sFCM):
     MAX_ITER = 30

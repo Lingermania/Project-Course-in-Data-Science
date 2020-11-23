@@ -201,16 +201,6 @@ if __name__=="__main__":
     sample_labels = [[np.random.binomial(1, x) for x in label_p] for label_p in labels_probs]
 
 
-    '''
-    data = torch.from_numpy( np.array([images[0].transpose( (2, 0, 1) ).astype('float32')/255.]) )
-    if use_cuda:
-        data = data.cuda()
-    data = Variable(data)
-    model = MyNet( data.size(1),2,100 )
-    if use_cuda:
-        model.cuda()
-    model.train()
-    '''
     #metric_stats = load_run(fcm,[None], 0,img_format="jpeg",dir_path=experiments_storage_path, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
     #metric_stats = load_run(fcm,sample_labels, 0,preloaded_images=images,cropping=True, cropp_args={"top":50,"bot":50,"left":50,"right":50}, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
     metric_stats = load_run(model,sample_labels, labels_names, 0,preloaded_images=images,cropping=True, cropp_args={"top":50,"bot":50,"left":50,"right":50}, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True)
