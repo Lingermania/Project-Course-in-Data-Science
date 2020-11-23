@@ -1,4 +1,5 @@
 from sFCM.sFCM import *
+from deepClustering.DFC import DFC 
 #from sFCM.demo import *
 from utils import *
 import cv2
@@ -23,8 +24,6 @@ def experiment_runs(model, true_labels,label_names,*args, **kwargs):
 
         s = kwargs
         for c, (stat, finish) in tqdm.tqdm(enumerate(model.run(*args,**kwargs)), total = kwargs['n_iter']):
-            if verbose:
-                print("Iteration {}".format(c))
             #One could potentially save the images
             #or do some computation on the response to examine the convergence
             #during the runs
@@ -192,7 +191,10 @@ if __name__=="__main__":
     images = load_imgdir(experiments_storage_path_images,"png")
     cropped_image = simple_cropping(images[0],  cropp_args={"top":50,"bot":50,"left":50,"right":50})
     #fcm = sFCM(2, 5, 1, 0.5, 3, images[0].shape)
-    fcm = FCM(2, 10, cropped_image.shape)
+    model = FCM(2, 10, cropped_image.shape)
+    #model = DFC()
+    #model.initialize_clustering(images[0])
+
     labels_dict = load_experiments_data(experiments_storage_path_label_prob, "npy",item=True)
     labels_names = [[key for key in sample] for sample in labels_dict]
     labels_probs = [[sample[key] for key in sample] for sample in labels_dict]
@@ -211,5 +213,5 @@ if __name__=="__main__":
     '''
     #metric_stats = load_run(fcm,[None], 0,img_format="jpeg",dir_path=experiments_storage_path, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
     #metric_stats = load_run(fcm,sample_labels, 0,preloaded_images=images,cropping=True, cropp_args={"top":50,"bot":50,"left":50,"right":50}, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
-    metric_stats = load_run(fcm,sample_labels, labels_names, 0,preloaded_images=images,cropping=True, cropp_args={"top":50,"bot":50,"left":50,"right":50}, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True)
+    metric_stats = load_run(model,sample_labels, labels_names, 0,preloaded_images=images,cropping=True, cropp_args={"top":50,"bot":50,"left":50,"right":50}, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True)
     combine_im_metrics(metric_stats)
