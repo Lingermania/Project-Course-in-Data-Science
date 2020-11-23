@@ -250,7 +250,7 @@ if __name__ == "__main__":
     import cv2
 
     #test = cv2.resize(cv2.imread('Project-Course-in-Data-Science/Experiments_data/60.jpeg'), (100,100))
-    test = cv2.imread('Project-Course-in-Data-Science/Experiments_data/60.jpeg')
+    test = cv2.imread('Project-Course-in-Data-Science/Experiments_data/Images/T1sample0_slice68.jpeg')
     comp_test = cv2.imread('Pytorch-unsupervised-segmentation-tip/BSD500/101027.jpg')
     #test = cv2.cvtColor(cv2.resize(test, (50, 50)), cv2.COLOR_BGR2GRAY)
 
