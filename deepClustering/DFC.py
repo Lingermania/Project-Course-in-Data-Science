@@ -146,11 +146,11 @@ class DFC:
         Yields statistics for each iteration
         '''
         if n_iter==0:
-            n_iter=FCM.MAX_ITER
+            n_iter=self.maxIters
 
         for c in range(n_iter):
             im, labels, membership, nrLabels = self.step()
-            yield labels, membership
+            yield (labels, membership.reshape(membership.shape[0]*membership.shape[1], membership.shape[2])), False
         
 
 if __name__ == "__main__":
