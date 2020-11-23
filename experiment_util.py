@@ -22,7 +22,6 @@ def experiment_runs(model, true_labels,label_names,*args, **kwargs):
         if verbose:
             print("Trial {} \n----------------------------------".format(i+1))
 
-        s = kwargs
         for c, (stat, finish) in tqdm.tqdm(enumerate(model.run(*args,**kwargs)), total = kwargs['n_iter']):
             #One could potentially save the images
             #or do some computation on the response to examine the convergence
@@ -107,9 +106,9 @@ def generate_metrics(stat,true_labels,label_names):
     Generates metrics for clustering based on stat containing
     membership function and data labels, in that order.
     """
-    partition_c = partition_coefficient(stat[0])
-    partition_e = partition_entropy(stat[0])
-    output_cluster = Cluster(stat[1])
+    partition_c = partition_coefficient(stat[1])
+    partition_e = partition_entropy(stat[1])
+    output_cluster = Cluster(stat[0])
     true_cluster = [Cluster(x, consider=[1]) for x in true_labels]
     iox_matrix, iox_cm = Cluster.distribution(true_cluster, label_names, output_cluster, metric = 'iox')
     iou_matrix, iou_cm = Cluster.distribution(true_cluster, label_names, output_cluster, metric = 'iou')
@@ -192,9 +191,9 @@ if __name__=="__main__":
     images = load_imgdir(experiments_storage_path_images,"png")
     cropped_image = simple_cropping(images[0],  cropp_args={"top":50,"bot":50,"left":50,"right":50})
     #fcm = sFCM(2, 5, 1, 0.5, 3, images[0].shape)
-    model = FCM(2, 10, cropped_image.shape)
-    #model = DFC()
-    #model.initialize_clustering(images[0])
+    #model = FCM(2, 10, cropped_image.shape)
+    model = DFC()
+    model.initialize_clustering(images[0])
 
     labels_dict = load_experiments_data(experiments_storage_path_label_prob, "npy",item=True)
     labels_names = [[key for key in sample] for sample in labels_dict]

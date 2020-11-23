@@ -150,7 +150,12 @@ class DFC:
 
         for c in range(n_iter):
             im, labels, membership, nrLabels = self.step()
-            yield (labels, membership.reshape(membership.shape[0]*membership.shape[1], membership.shape[2])), False
+            membership = membership.reshape(membership.shape[0], membership.shape[1]*membership.shape[2]).T
+            label_set = np.delete(np.array([x for x in range(self.nChannel)]), np.unique(labels))
+            
+            membership = np.delete(membership, label_set, axis=1)
+
+            yield (labels, membership), False
         
 
 if __name__ == "__main__":
