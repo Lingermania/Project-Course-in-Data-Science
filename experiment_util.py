@@ -108,7 +108,7 @@ def generate_metrics(stat,true_labels,label_names):
     partition_c = partition_coefficient(stat[0])
     partition_e = partition_entropy(stat[0])
     output_cluster = Cluster(stat[1])
-    true_cluster = Cluster(true_labels)
+    true_cluster = [Cluster(x, consider=[1]) for x in true_labels]
     IOU, cm = Cluster.distribution(true_cluster,label_names,output_cluster)
     return partition_c,partition_e,IOU, cm
 
