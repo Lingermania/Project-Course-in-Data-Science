@@ -136,11 +136,22 @@ class DFC:
         else:
             return im_target_rgb.reshape( *self.im.shape ).astype( np.uint8 ), im_target.reshape((self.im.shape[0], self.im.shape[1])), response_map, nLabels
 
+    def run(self, im, eps, n_iter=0, **kwargs):
+        '''
+        Runs the iterative process of clustering
 
-    def run(self):
-        for i in range(self.maxIters):
+        im  - np array (h, w, c)
+        eps - convergence criteria
+
+        Yields statistics for each iteration
+        '''
+        if n_iter==0:
+            n_iter=FCM.MAX_ITER
+
+        for c in range(n_iter):
             im, labels, membership, nrLabels = self.step()
             yield labels, membership
+        
 
 if __name__ == "__main__":
     dfc = DFC(minLabels=10, nChannel=100, nConv=2, lr=0.01, stepsize_con=5)
