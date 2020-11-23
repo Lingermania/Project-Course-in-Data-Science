@@ -2,6 +2,9 @@ from sFCM.sFCM import *
 #from sFCM.demo import *
 from utils import *
 import cv2
+from os import path
+import os
+
 #import torch
 #use_cuda = torch.cuda.is_available()
 def experiment_runs(model, true_labels,*args, **kwargs):
@@ -171,11 +174,12 @@ def load_experiments_data(dir_path, data_format,item=False):
     return data
 
 
+directory = path.dirname(path.abspath(path.abspath(__file__)))
 
-data_storage_path_trials = "Project-Course-in-Data-Science/data_storage/trials"
-data_storage_path_images = "Project-Course-in-Data-Science/data_storage/images"
-experiments_storage_path_images = 'Project-Course-in-Data-Science/Experiments_data/Images/'
-experiments_storage_path_label_prob = 'Project-Course-in-Data-Science/Experiments_data/ground_truths/'
+data_storage_path_trials = path.join(directory, 'data_storage', 'trials')#"Project-Course-in-Data-Science/data_storage/trials"
+data_storage_path_images = path.join(directory, 'data_storage', 'images')#"Project-Course-in-Data-Science/data_storage/images"
+experiments_storage_path_images = path.join(directory, 'Experiments_data', 'Images') + '/'#'Project-Course-in-Data-Science/Experiments_data/Images/'
+experiments_storage_path_label_prob = path.join(directory, 'Experiments_data', 'ground_truths') + '/'#'Project-Course-in-Data-Science/Experiments_data/ground_truths/'
 default_im_format = "jpeg"
 
 

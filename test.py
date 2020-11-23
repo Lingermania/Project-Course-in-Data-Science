@@ -44,7 +44,7 @@ for i in range(0, 100):
 '''
 
 
-test = np.load('/home/kristmundur/Documents/KTH/Project Course/PCiDS/unsupervisedSegmentation/clustered_data/test.npy', allow_pickle=True)
+test = np.load('/home/kristmundur/Documents/KTH/Project Course/PCiDS/deepClustering/clustered_data/test.npy', allow_pickle=True)
 
 im, labels, label_probabilities = test[()]['im'], test[()]['labels'], test[()]['label_probabilities']
 
@@ -52,6 +52,13 @@ sample_labels = [np.random.binomial(1, x) for x in label_probabilities]
 
 #adjust background
 
+a, b = Cluster(labels), [Cluster(x, consider=[1]) for x in sample_labels]
+#print([x.sum() for x in sample_labels])
+#print(labels.shape, sample_labels[0].shape)
+#mp, _ = b.approximate_mapping(a)
+#print(mp)
+#print(sum([x[0] for x in mp[1]]), sample_labels[1].sum()) 
+Cluster.distribution(b, brainweb.Act.all_labels, a)
 '''
 for i in np.unique(labels):
     img = np.int8(labels == i)*255
@@ -62,7 +69,7 @@ for i in np.unique(labels):
     plt.imshow(sample_labels[i]*255)
     #plt.show()
 '''
-
+'''
 fig = plt.figure(figsize = (6, 10))
 columns = 12
 rows    = 1
@@ -85,3 +92,4 @@ for i, (lbl, name) in enumerate(zip(sample_labels, brainweb.Act.all_labels)):
     plt.title(name)
 
 plt.show()
+'''
