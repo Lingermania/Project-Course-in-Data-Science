@@ -114,7 +114,7 @@ def generate_metrics(stat,true_labels,label_names):
     iou_matrix, iou_cm = Cluster.distribution(true_cluster, label_names, output_cluster, metric = 'iou')
     iou_mapping        = Cluster.iou_mapping(true_cluster, label_names, output_cluster)
 
-    return iox_matrix, iox_cm, iou_matrix, iou_cm, iou_mapping#partition_c,partition_e,IOU, cm
+    return partition_c,partition_e,iox_matrix, iox_cm, iou_matrix, iou_cm, iou_mapping#partition_c,partition_e,IOU, cm
 
 
 def metric_stats(metrics):
