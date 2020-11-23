@@ -2,9 +2,12 @@ from sFCM.sFCM import *
 #from sFCM.demo import *
 from utils import *
 import cv2
+from os import path
+import os
+
 #import torch
 #use_cuda = torch.cuda.is_available()
-def experiment_runs(model, true_labels,*args, **kwargs):
+def experiment_runs(model, true_labels,label_names,*args, **kwargs):
     """
     Runs the models run method on the data n times, calculates the average and standard
     deviation of the metric method.
@@ -24,7 +27,7 @@ def experiment_runs(model, true_labels,*args, **kwargs):
             #or do some computation on the response to examine the convergence
             #during the runs
             continue
-        metric_list.append(generate_metrics(stat,true_labels))
+        metric_list.append(generate_metrics(stat,true_labels,label_names))
         if "save_trials" in kwargs:
             if kwargs["save_trials"]:
                 np.save(data_storage_path_trials+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(metric_list[-1],dtype=object))
@@ -65,7 +68,7 @@ def simple_cropping(im, cropp_args={"top":0,"bot":0,"left":0,"right":0}, **kwarg
     return cropped_im
 
 
-def load_run(model, true_labels,*args, paths=False,img_format=None, dir_path=None, cropping=False,cropping_method=simple_cropping, preloaded_images=None, **kwargs):
+def load_run(model, true_labels,label_names,*args, paths=False,img_format=None, dir_path=None, cropping=False,cropping_method=simple_cropping, preloaded_images=None, **kwargs):
     """args are used as the input parameters to the model run method 
         kwargs are used deterministically with "n_trials" required
     """
@@ -92,25 +95,23 @@ def load_run(model, true_labels,*args, paths=False,img_format=None, dir_path=Non
         if verbose:
             print("Starting experiment trials with image {} \n----------------------------------".format(i))
         if "save_trials" in kwargs or "save_stats" in kwargs:
-            metrics.append(experiment_runs(model,true_labels[i], im,*args, image_nr=i,**kwargs))
+            metrics.append(experiment_runs(model,true_labels[i],label_names[i], im,*args, image_nr=i,**kwargs))
         else:
-            metrics.append(experiment_runs(model,true_labels[i], im,*args,**kwargs))
+            metrics.append(experiment_runs(model,true_labels[i],label_names[i], im,*args,**kwargs))
     return metrics
 
-def generate_metrics(stat,true_labels):
+def generate_metrics(stat,true_labels,label_names):
     """
     Generates metrics for clustering based on stat containing
     membership function and data labels, in that order.
     """
     partition_c = partition_coefficient(stat[0])
     partition_e = partition_entropy(stat[0])
-    #output_cluster = Cluster(stat[1])
-    #true_cluster = Cluster(true_labels)
-    #IOU = output_cluster.iou(true_cluster)
-    IOU=np.array([None])
-    return partition_c,partition_e,IOU
+    output_cluster = Cluster(stat[1])
+    true_cluster = Cluster(true_labels)
+    IOU, cm = Cluster.distribution(true_cluster,label_names,output_cluster)
+    return partition_c,partition_e,IOU, cm
 
-    return 0
 
 def metric_stats(metrics):
     """
@@ -171,11 +172,12 @@ def load_experiments_data(dir_path, data_format,item=False):
     return data
 
 
+directory = path.dirname(path.abspath(path.abspath(__file__)))
 
-data_storage_path_trials = "Project-Course-in-Data-Science/data_storage/trials"
-data_storage_path_images = "Project-Course-in-Data-Science/data_storage/images"
-experiments_storage_path_images = 'Project-Course-in-Data-Science/Experiments_data/Images/'
-experiments_storage_path_label_prob = 'Project-Course-in-Data-Science/Experiments_data/ground_truths/'
+data_storage_path_trials = path.join(directory, 'data_storage', 'trials')#"Project-Course-in-Data-Science/data_storage/trials"
+data_storage_path_images = path.join(directory, 'data_storage', 'images')#"Project-Course-in-Data-Science/data_storage/images"
+experiments_storage_path_images = path.join(directory, 'Experiments_data', 'Images') + '/'#'Project-Course-in-Data-Science/Experiments_data/Images/'
+experiments_storage_path_label_prob = path.join(directory, 'Experiments_data', 'ground_truths') + '/'#'Project-Course-in-Data-Science/Experiments_data/ground_truths/'
 default_im_format = "jpeg"
 
 
@@ -186,6 +188,7 @@ if __name__=="__main__":
     #fcm = sFCM(2, 5, 1, 0.5, 3, images[0].shape)
     fcm = FCM(2, 10, cropped_image.shape)
     labels_dict = load_experiments_data(experiments_storage_path_label_prob, "npy",item=True)
+    labels_names = [[key for key in sample] for sample in labels_dict]
     labels_probs = [[sample[key] for key in sample] for sample in labels_dict]
     sample_labels = [[np.random.binomial(1, x) for x in label_p] for label_p in labels_probs]
 
