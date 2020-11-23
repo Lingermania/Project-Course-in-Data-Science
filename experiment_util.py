@@ -3,7 +3,7 @@ from sFCM.sFCM import *
 from utils import *
 import cv2
 from os import path
-import os
+import os, tqdm
 
 #import torch
 #use_cuda = torch.cuda.is_available()
@@ -20,7 +20,9 @@ def experiment_runs(model, true_labels,label_names,*args, **kwargs):
     for i in range(kwargs["n_trials"]):
         if verbose:
             print("Trial {} \n----------------------------------".format(i+1))
-        for c, (stat, finish) in enumerate(model.run(*args,**kwargs)):
+
+        s = kwargs
+        for c, (stat, finish) in tqdm.tqdm(enumerate(model.run(*args,**kwargs)), total = kwargs['n_iter']):
             if verbose:
                 print("Iteration {}".format(c))
             #One could potentially save the images
