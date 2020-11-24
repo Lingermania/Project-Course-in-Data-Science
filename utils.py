@@ -25,7 +25,7 @@ def partition_entropy(u):
 
     N, c = u.shape
 
-    return -(u * np.log(u)).sum()/N
+    return -(u * np.ma.log(u).filled(0)).sum()/N
 
 def visualize_matrix(mat):
     plt.figure(figsize = (10, 7))
