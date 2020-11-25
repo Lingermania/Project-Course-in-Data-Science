@@ -136,11 +136,11 @@ class DFC:
 
         im_target_rgb = np.array([self.label_colours[ c % self.nChannel ] for c in im_target])
         if not self.dim3:
-            return im_target_rgb.reshape( ( *self.im.shape, 3) ).astype( np.uint8 ), im_target.reshape(self.im.shape), response_map, nLabels
+            return loss.item(), im_target_rgb.reshape( ( *self.im.shape, 3) ).astype( np.uint8 ), im_target.reshape(self.im.shape), response_map, nLabels
         else:
-            return im_target_rgb.reshape( *self.im.shape ).astype( np.uint8 ), im_target.reshape((self.im.shape[0], self.im.shape[1])), response_map, nLabels
+            return loss.item(), im_target_rgb.reshape( *self.im.shape ).astype( np.uint8 ), im_target.reshape((self.im.shape[0], self.im.shape[1])), response_map, nLabels
 
-    def run(self, im, eps, n_iter=0, **kwargs):
+    def run(self, im, eps=1e-7, n_iter=0, **kwargs):
         '''
         Runs the iterative process of clustering
 
@@ -151,13 +151,17 @@ class DFC:
         '''
         if n_iter==0:
             n_iter=self.maxIters
-
+        prev_loss = 10000
         for c in range(n_iter):
-            im, labels, membership, nrLabels = self.step()
+            loss, im, labels, membership, nrLabels = self.step()
             membership = membership.reshape(membership.shape[0], membership.shape[1]*membership.shape[2]).T
             label_set = np.delete(np.array([x for x in range(self.nChannel)]), np.unique(labels))
             
             membership = np.delete(membership, label_set, axis=1)
+            if abs(prev_loss-loss)<eps:
+                return (labels, membership), False
+            else:
+                prev_loss=loss
 
             yield (labels, membership), False
         
