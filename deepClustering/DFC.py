@@ -140,7 +140,7 @@ class DFC:
         else:
             return loss.item(), im_target_rgb.reshape( *self.im.shape ).astype( np.uint8 ), im_target.reshape((self.im.shape[0], self.im.shape[1])), response_map, nLabels
 
-    def run(self, im, eps=1e-7, n_iter=0, **kwargs):
+    def run(self, im, eps=1e-7, n_iter=0, minLabel_conv=True, **kwargs):
         '''
         Runs the iterative process of clustering
 
@@ -158,7 +158,15 @@ class DFC:
             label_set = np.delete(np.array([x for x in range(self.nChannel)]), np.unique(labels))
             
             membership = np.delete(membership, label_set, axis=1)
-            if abs(prev_loss-loss)<eps:
+
+            label_conv = False
+            if minLabel_conv:
+                if nrLabels==self.minLabels:
+                    label_conv=True
+            else:
+                label_conv=True
+
+            if abs(prev_loss-loss)<eps and label_conv:
                 return (labels, membership), False
             else:
                 prev_loss=loss
