@@ -141,6 +141,10 @@ class sFCM(FCM):
         #intialize spatial function
         self.h = self._h(self.u)
 
+    
+    def re_init(self):
+        "Reinitalizing for trial testing"
+        self.__init__(self.m,self.K,self.p,self.q,self.w_siz,self.imshape)
         
 
 

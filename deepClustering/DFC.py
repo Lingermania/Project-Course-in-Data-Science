@@ -64,6 +64,10 @@ class DFC:
         self.minLabels    = minLabels
         self.maxIters     = max_iters
 
+    def re_init(self):
+        "Reinitalizing for trial testing"
+        self.initialize_clustering(self.im)
+
     def initialize_clustering(self, im):
         self.dim3 = False
         if len(im.shape) == 3:
