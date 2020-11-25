@@ -90,12 +90,12 @@ class FCM:
                 elif len(self.imshape) == 2:
                     stats[i,j] = vis[self.get_class(i,j)]
         new_vis_ar = np.array(self._vi(self.u, im))
-        centre_diff = np.abs(new_vis_ar.reshape(-1,1)-vis_ar)
+        centre_diff = np.abs(new_vis_ar-vis_ar)
         if np.max(centre_diff)<eps:
             return [self.u,stats], True
         return [self.u,stats], False
         
-    def run(self, im, eps, n_iter=0, **kwargs):
+    def run(self, im, eps=0.02, n_iter=0, **kwargs):
         '''
         Runs the iterative process of clustering
 
@@ -108,6 +108,8 @@ class FCM:
             n_iter=FCM.MAX_ITER
         for c in range(n_iter):
             stats, finish = self.step(im, eps)
+            if finish:
+                return stats, finish
 
             yield stats, finish
         
@@ -200,7 +202,9 @@ class sFCM(FCM):
                     stats[i,j] = vis[self.get_class(i,j)]
         
         new_vis_ar = np.array(self._vi(self.u, im))
-        centre_diff = np.abs(new_vis_ar.reshape(-1,1)-vis_ar)
+        centre_diff = np.abs(new_vis_ar-vis_ar)
+        print(centre_diff)
+        #print(np.max(centre_diff))
         if np.max(centre_diff)<eps:
             return [self.u,stats], True
 
