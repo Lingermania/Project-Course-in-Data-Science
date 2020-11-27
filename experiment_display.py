@@ -39,17 +39,17 @@ labels_dict = load_experiments_data(experiments_storage_path_label_prob, "npy",i
 truth_labels = [key for key in labels_dict[0]]
 iou_cm = np.array(d[metric_index["iou_cm"]])
 iox_cm = np.array(d[metric_index["iox_cm"]])
-#visualize_labeled_cm(iox_mat,truth_labels)
 mIOU_imlist=compute_mIOU(d[metric_index["iou_mapping"]])
+
+#Histogram of mIOU
 #sns.displot(pd.Series(mIOU_imlist.flatten(), name="mIOU"))
 #plt.show()
+
 best_ind,worst_ind = best_worst_mIOU_ind(mIOU_imlist)
 
 visualize_matrix(iox_cm[best_ind], title="Best iox confusion matrix")
 visualize_matrix(iou_cm[best_ind], title="Best iou confusion matrix")
 visualize_matrix(iox_cm[worst_ind], title="Worst iox confusion matrix")
 visualize_matrix(iou_cm[worst_ind], title="Worst iou confusion matrix")
-#visualize_labeled_cm(iox_mat[best_ind],truth_labels)
 
-#visualize_labeled_cm(iox_mat[worst_ind],truth_labels)
 print()
