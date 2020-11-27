@@ -193,11 +193,11 @@ default_im_format = "jpeg"
 if __name__=="__main__":
     experiments_name = "synthetic_brain"
     images = load_imgdir(experiments_storage_path_images,"png")
-    cropped_image = simple_cropping(images[0],  cropp_args={"top":50,"bot":50,"left":50,"right":50})
-    #fcm = sFCM(2, 5, 1, 0.5, 3, cropped_image.shape)
+    cropped_image = simple_cropping(images[0],  cropp_args={"top":100,"bot":100,"left":100,"right":100})
+    model = sFCM(2, 12, 1, 0.5, 5, cropped_image.shape)
     #model = FCM(2, 10, cropped_image.shape)
-    model = DFC()
-    model.initialize_clustering(images[0])
+    #model = DFC()
+    #model.initialize_clustering(images[0])
 
     labels_dict = load_experiments_data(experiments_storage_path_label_prob, "npy",item=True)
     labels_names = [[key for key in sample] for sample in labels_dict]
@@ -208,5 +208,5 @@ if __name__=="__main__":
     #metric_stats = load_run(fcm,[None], 0,img_format="jpeg",dir_path=experiments_storage_path, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
     #metric_stats = load_run(fcm,sample_labels, 0,preloaded_images=images,cropping=True, cropp_args={"top":50,"bot":50,"left":50,"right":50}, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
     #metric_stats = load_run(fcm,sample_labels, labels_names, eps=0.02,preloaded_images=images,cropping=True, n_iter=fcm.MAX_ITER, cropp_args={"top":50,"bot":50,"left":50,"right":50},paths=False, n_trials=10, save_trials=True,save_stats=True, verbose=True)
-    metric_stats = load_run(model,sample_labels, labels_names, eps=0.02,preloaded_images=images,cropping=True, n_iter=model.maxIters, cropp_args={"top":50,"bot":50,"left":50,"right":50},paths=False, n_trials=10, save_trials=True,save_stats=True, verbose=True)
-    np.save(data_storage_path_compiled+experiments_name+" "+type(model).__name__, np.array(combine_im_metrics(metric_stats), dtype=object))
+    metric_stats = load_run(model,sample_labels, labels_names, eps=0.02,preloaded_images=images,cropping=True, n_iter=20, cropp_args={"top":100,"bot":100,"left":100,"right":100},paths=False, n_trials=10, save_trials=True,save_stats=True, verbose=True)
+    #np.save(data_storage_path_compiled+experiments_name+" "+type(model).__name__, np.array(combine_im_metrics(metric_stats), dtype=object))
