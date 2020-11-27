@@ -27,10 +27,13 @@ def partition_entropy(u):
 
     return -(u * np.ma.log(u).filled(0)).sum()/N
 
-def visualize_matrix(mat):
+def visualize_matrix(mat, title=None,**kwargs):
     plt.figure(figsize = (10, 7))
 
-    sn.heatmap(mat, annot=True)
+    sn.heatmap(mat, annot=True,**kwargs)
+    if title:
+        plt.title(title)
+
     plt.show()
 
 class Cluster:
