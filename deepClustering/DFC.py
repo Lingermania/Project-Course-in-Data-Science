@@ -140,7 +140,7 @@ class DFC:
         else:
             return loss.item(), im_target_rgb.reshape( *self.im.shape ).astype( np.uint8 ), im_target.reshape((self.im.shape[0], self.im.shape[1])), response_map, nLabels
 
-    def run(self, im, eps=1e-7, n_iter=0, minLabel_conv=True, **kwargs):
+    def run(self, im, eps=1e-7, n_iter=0, minLabel_conv=True, minLabel_return=True, **kwargs):
         '''
         Runs the iterative process of clustering
 
@@ -152,6 +152,8 @@ class DFC:
         if n_iter==0:
             n_iter=self.maxIters
         prev_loss = 10000
+        prev_labels = None
+        prev_membership = None
         for c in range(n_iter):
             loss, im, labels, membership, nrLabels = self.step()
             membership = membership.reshape(membership.shape[0], membership.shape[1]*membership.shape[2]).T
@@ -163,13 +165,17 @@ class DFC:
             if minLabel_conv:
                 if nrLabels==self.minLabels:
                     label_conv=True
+                elif nrLabels<self.minLabels:
+                    return (prev_labels, membership), True
             else:
                 label_conv=True
 
             if abs(prev_loss-loss)<eps and label_conv:
-                return (labels, membership), False
+                return (labels, membership), True
             else:
                 prev_loss=loss
+            prev_labels = np.copy(labels)
+            prev_membership = np.copy(membership)
 
             yield (labels, membership), False
         
