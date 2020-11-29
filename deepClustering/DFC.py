@@ -177,7 +177,7 @@ class DFC:
             prev_labels = np.copy(labels)
             prev_membership = np.copy(membership)
 
-            yield (labels, membership), False
+            yield {"labels":labels, "membership":membership}, False
         
 
 if __name__ == "__main__":

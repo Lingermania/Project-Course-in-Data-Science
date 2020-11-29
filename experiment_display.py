@@ -1,5 +1,6 @@
 from experiment_util import *
 from utils import visualize_matrix
+from os import path
 import numpy as np
 import seaborn as sns
 import pandas as pd
@@ -32,8 +33,8 @@ def best_worst_mIOU_ind(miou_list):
 
 
 sns.set(font_scale=0.8)
-
-d = load_experiments_data(data_storage_path_compiled,"npy")[0]
+#d = load_experiments_data(data_storage_path_compiled,"npy")[0]
+e = np.load(data_storage_path_trials+"0_sFCM_pretrial.npy",allow_pickle=True)
 metric_index ={metric:i for i,metric in enumerate(["partition_c","partition_e","iox_matrix", "iox_cm", "iou_matrix", "iou_cm", "iou_mapping"])}
 labels_dict = load_experiments_data(experiments_storage_path_label_prob, "npy",item=True)
 truth_labels = [key for key in labels_dict[0]]

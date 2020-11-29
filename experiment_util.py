@@ -109,9 +109,9 @@ def generate_metrics(stat,true_labels,label_names):
     Generates metrics for clustering based on stat containing
     membership function and data labels, in that order.
     """
-    partition_c = partition_coefficient(stat[1])
-    partition_e = partition_entropy(stat[1])
-    output_cluster = Cluster(stat[0])
+    partition_c = partition_coefficient(stat["membership"])
+    partition_e = partition_entropy(stat["membership"])
+    output_cluster = Cluster(stat["labels"])
     true_cluster = [Cluster(x, consider=[1]) for x in true_labels]
     iox_matrix, iox_cm = Cluster.distribution(true_cluster, label_names, output_cluster, metric = 'iox')
     iou_matrix, iou_cm = Cluster.distribution(true_cluster, label_names, output_cluster, metric = 'iou')
@@ -193,10 +193,13 @@ default_im_format = "jpeg"
 if __name__=="__main__":
     experiments_name = "synthetic_brain"
     images = load_imgdir(experiments_storage_path_images,"png")
-    cropped_image = simple_cropping(images[0],  cropp_args={"top":50,"bot":50,"left":50,"right":50})
-    #fcm = sFCM(2, 5, 1, 0.5, 3, cropped_image.shape)
+    cropping = {"top":100,"bot":100,"left":100,"right":100}
+    cropped_image = simple_cropping(images[0],  cropp_args=cropping)
+    #cv2.imshow('{}'.format(2), cropped_image)
+    #cv2.waitKey(10)
+    fcm = sFCM(2, 5, 1, 0.5, 3, cropped_image.shape)
     #model = FCM(2, 10, cropped_image.shape)
-    model = DFC(minLabels=12, max_iters=100)
+    model = DFC(minLabels=9, max_iters=200)
     model.initialize_clustering(cropped_image)
 
     labels_dict = load_experiments_data(experiments_storage_path_label_prob, "npy",item=True)
@@ -207,6 +210,6 @@ if __name__=="__main__":
 
     #metric_stats = load_run(fcm,[None], 0,img_format="jpeg",dir_path=experiments_storage_path, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
     #metric_stats = load_run(fcm,sample_labels, 0,preloaded_images=images,cropping=True, cropp_args={"top":50,"bot":50,"left":50,"right":50}, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
-    #metric_stats = load_run(fcm,sample_labels, labels_names, eps=0.02,preloaded_images=images,cropping=True, n_iter=fcm.MAX_ITER, cropp_args={"top":50,"bot":50,"left":50,"right":50},paths=False, n_trials=10, save_trials=True,save_stats=True, verbose=True)
-    metric_stats = load_run(model,sample_labels, labels_names,preloaded_images=images,cropping=True, n_iter=model.maxIters, cropp_args={"top":50,"bot":50,"left":50,"right":50},paths=False, n_trials=10, save_trials=True,save_stats=True, verbose=True)
+    metric_stats = load_run(fcm,sample_labels, labels_names, eps=0.02,preloaded_images=images,cropping=True, n_iter=fcm.MAX_ITER, cropp_args=cropping,paths=False, n_trials=10, save_trials=True,save_stats=True, verbose=True)
+    #metric_stats = load_run(model,sample_labels, labels_names,preloaded_images=images,cropping=True, n_iter=model.maxIters, cropp_args=cropping,paths=False, n_trials=10, save_trials=True,save_stats=True, verbose=True)
     np.save(data_storage_path_compiled+experiments_name+" "+type(model).__name__, np.array(combine_im_metrics(metric_stats), dtype=object))
