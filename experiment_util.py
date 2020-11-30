@@ -26,6 +26,8 @@ def experiment_runs(model, true_labels,label_names,*args, **kwargs):
             #One could potentially save the images
             #or do some computation on the response to examine the convergence
             #during the runs
+            cv2.imshow('{}'.format(i), stat["labels"])
+            cv2.waitKey(10)
             if finish:
                 break
             continue
@@ -117,7 +119,7 @@ def generate_metrics(stat,true_labels,label_names):
     iou_matrix, iou_cm = Cluster.distribution(true_cluster, label_names, output_cluster, metric = 'iou')
     iou_mapping        = Cluster.iou_mapping(true_cluster, label_names, output_cluster)
 
-    return partition_c,partition_e,iox_matrix, iox_cm, iou_matrix, iou_cm, iou_mapping#partition_c,partition_e,IOU, cm
+    return partition_c,partition_e,iox_matrix, iox_cm, iou_matrix, iou_cm, iou_mapping, stat["labels"]#partition_c,partition_e,IOU, cm
 
 
 def metric_stats(metrics):
@@ -197,7 +199,7 @@ if __name__=="__main__":
     cropped_image = simple_cropping(images[0],  cropp_args=cropping)
     #cv2.imshow('{}'.format(2), cropped_image)
     #cv2.waitKey(10)
-    fcm = sFCM(2, 5, 1, 0.5, 3, cropped_image.shape)
+    #fcm = sFCM(2, 9, 1, 1, 3, cropped_image.shape)
     #model = FCM(2, 10, cropped_image.shape)
     model = DFC(minLabels=9, max_iters=200)
     model.initialize_clustering(cropped_image)
@@ -210,6 +212,6 @@ if __name__=="__main__":
 
     #metric_stats = load_run(fcm,[None], 0,img_format="jpeg",dir_path=experiments_storage_path, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
     #metric_stats = load_run(fcm,sample_labels, 0,preloaded_images=images,cropping=True, cropp_args={"top":50,"bot":50,"left":50,"right":50}, n_iter=1,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True) 
-    metric_stats = load_run(fcm,sample_labels, labels_names, eps=0.02,preloaded_images=images,cropping=True, n_iter=fcm.MAX_ITER, cropp_args=cropping,paths=False, n_trials=10, save_trials=True,save_stats=True, verbose=True)
-    #metric_stats = load_run(model,sample_labels, labels_names,preloaded_images=images,cropping=True, n_iter=model.maxIters, cropp_args=cropping,paths=False, n_trials=10, save_trials=True,save_stats=True, verbose=True)
+    #metric_stats = load_run(fcm,sample_labels, labels_names, eps=0.02,preloaded_images=images,cropping=True, n_iter=fcm.MAX_ITER, cropp_args=cropping,paths=False, n_trials=10, save_trials=True,save_stats=True, verbose=True)
+    metric_stats = load_run(model,sample_labels, labels_names,preloaded_images=images,cropping=True, n_iter=model.maxIters, cropp_args=cropping,paths=False, n_trials=10, save_trials=True,save_stats=True, verbose=True)
     np.save(data_storage_path_compiled+experiments_name+" "+type(model).__name__, np.array(combine_im_metrics(metric_stats), dtype=object))

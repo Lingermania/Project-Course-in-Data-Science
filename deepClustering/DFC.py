@@ -166,12 +166,12 @@ class DFC:
                 if nrLabels==self.minLabels:
                     label_conv=True
                 elif nrLabels<self.minLabels:
-                    return (prev_labels, membership), True
+                    return {"labels":labels, "membership":membership}, True
             else:
                 label_conv=True
 
             if abs(prev_loss-loss)<eps and label_conv:
-                return (labels, membership), True
+                return {"labels":labels, "membership":membership}, True
             else:
                 prev_loss=loss
             prev_labels = np.copy(labels)
