@@ -26,13 +26,12 @@ def experiment_runs(model, true_labels,label_names,*args, **kwargs):
             #One could potentially save the images
             #or do some computation on the response to examine the convergence
             #during the runs
-            cv2.imshow('{}'.format(i), stat["labels"])
-            cv2.waitKey(10)
             if finish:
                 break
             continue
         metric_list.append(generate_metrics(stat,true_labels,label_names))
         model.re_init()
+        #cv2.imwrite( "output.png", stat["im"])
         if "save_trials" in kwargs:
             if kwargs["save_trials"]:
                 np.save(data_storage_path_trials+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(metric_list[-1],dtype=object))
