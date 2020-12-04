@@ -26,6 +26,12 @@ def experiment_runs(model, true_labels,label_names,*args, **kwargs):
             #One could potentially save the images
             #or do some computation on the response to examine the convergence
             #during the runs
+            if "show_convergence" in kwargs:
+                if kwargs["show_convergence"]:
+                    plt.imshow(stat["im"])
+                    plt.axis('off')
+                    plt.pause(.1)
+                    plt.draw()
             if finish:
                 break
             continue
@@ -35,10 +41,17 @@ def experiment_runs(model, true_labels,label_names,*args, **kwargs):
         if "save_trials" in kwargs:
             if kwargs["save_trials"]:
                 np.save(data_storage_path_trials+str(kwargs["image_nr"])+"_"+type(model).__name__+"_trial"+str(i),np.array(metric_list[-1],dtype=object))
+        if "show_image" in kwargs:
+            if kwargs["show_image"]:
+                plt.imshow(stat["im"])
+                plt.axis('off')
+                plt.show()
 
     if "save_image" in kwargs:
         if kwargs["save_image"]:
             cv2.imwrite( data_storage_path_images+"output.png", stat["im"])
+    
+    
 
     stats = metric_stats(metric_list)
     if "save_stats" in kwargs:
@@ -200,9 +213,9 @@ if __name__=="__main__":
     cropping = {"top":100,"bot":100,"left":100,"right":100}
     cropped_image = simple_cropping(images[0],  cropp_args=cropping)
 
-    fcm = sFCM(2, 9, 1, 1, 3, cropped_image.shape)
-    #dfc = DFC(minLabels=9, max_iters=200)
-    #dfc.initialize_clustering(cropped_image)
+    #fcm = sFCM(2, 9, 1, 1, 3, cropped_image.shape)
+    dfc = DFC(minLabels=9, max_iters=100, maxLabels=200,nChannel=50, nConv=3)
+    dfc.initialize_clustering(cropped_image)
 
     labels_dict = load_experiments_data(experiments_storage_path_label_prob, "npy",item=True)
     labels_names = [[key for key in sample] for sample in labels_dict]
@@ -210,6 +223,6 @@ if __name__=="__main__":
     sample_labels = [[np.random.binomial(1, x) for x in label_p] for label_p in labels_probs]
 
 
-    metric_stats = load_run(fcm,sample_labels, labels_names, eps=0.02,preloaded_images=images,cropping=True, n_iter=sFCM.MAX_ITER, cropp_args=cropping,paths=False, n_trials=5, save_trials=True,save_stats=True, verbose=True)
-    #metric_stats = load_run(dfc,sample_labels, labels_names,preloaded_images=images,cropping=True, n_iter=1, cropp_args=cropping,paths=False, n_trials=2, save_trials=True,save_stats=True, verbose=True)
+    #metric_stats = load_run(fcm,sample_labels, labels_names, eps=0.02,preloaded_images=images,cropping=True, n_iter=sFCM.MAX_ITER, cropp_args=cropping,paths=False, n_trials=5, save_trials=True,save_stats=True, verbose=True)
+    metric_stats = load_run(dfc,sample_labels, labels_names,preloaded_images=images,cropping=True, n_iter=dfc.maxIters, cropp_args=cropping,paths=False, n_trials=1, show_convergence=True,show_image=True, save_trials=False,save_stats=False, verbose=True)
     #np.save(data_storage_path_compiled+experiments_name+" "+type(model).__name__, np.array(combine_im_metrics(metric_stats), dtype=object))
