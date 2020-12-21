@@ -210,9 +210,9 @@ class sFCM(FCM):
         print(centre_diff)
         #print(np.max(centre_diff))
         if np.max(centre_diff)<eps:
-            return {"membership":self.u,"labels":stats}, True
+            return {"membership":self.u,"labels":stats, "im" : stats}, True
 
-        return {"membership":self.u,"labels":stats}, False
+        return {"membership":self.u,"labels":stats, "im" : stats}, False
 
 class csFCM(sFCM):
     MAX_ITER = 30
